@@ -1,19 +1,18 @@
-# Security notes
+# Security & Threat Model
 
-## Threat model
+## Defended
 
-`trysac-llm-gateway-lite` is a pure library without I/O. The main risks are:
+- **Plaintext Keys Never Stored or Logged**: Virtual keys are 256-bit random tokens stored only as SHA-256 digests. Plaintext keys are never persisted.
+- **Constant-Time Digest Comparison**: Uses `hmac.compare_digest` for token authentication to prevent timing side channels.
+- **Per-Key Model Allowlists**: Enforces model-specific access per key before any provider invocation.
+- **Content-Length Validation**: Payload size is capped (`max_body_bytes`) and validated before JSON parsing.
+- **Masked Upstream Exceptions**: Provider exceptions and upstream secrets are never echoed in HTTP error bodies; returns `502 Bad Gateway`.
+- **Default Bind Address**: Default gateway bind is `127.0.0.1`.
 
-- **Supply chain**: a compromised dependency or CI action. Mitigation: no runtime dependencies,
-  Dependabot weekly updates, actions pinned to major versions, minimal workflow permissions.
-- **Leaked secrets**: tokens committed by mistake. Mitigation: `gitleaks` runs in the local gates
-  and in CI; `.env` files are git-ignored.
-- **Untrusted input**: callers may pass hostile strings. Mitigation: validate input and fail with
-  explicit exceptions; never `eval`, `exec` or deserialize untrusted data.
+## Not Defended
 
-## Publishing
-
-Releases are published to PyPI with trusted publishing (OIDC) when available, never with a
-long-lived token stored in the repository.
-
-To report a vulnerability, see [SECURITY.md](../SECURITY.md).
+- **TLS Termination**: Must be run behind a reverse proxy (NGINX, Caddy).
+- **Distributed Limits**: Limits are in-memory and per-process; multi-host deployments are unsupported.
+- **DoI/DoS**: Volumetric attack protection beyond the body byte cap is not implemented.
+- **Prompt Content Policy**: No safety or PII filtering.
+- **Streaming**: Server-sent events / streaming responses are unsupported.
