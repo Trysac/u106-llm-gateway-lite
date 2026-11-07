@@ -1,20 +1,17 @@
 # Testing
 
-## Running
-
-```sh
-uv run pytest --cov=llm_gateway_lite   # tests with coverage report
-uv run python scripts/check.py      # every gate, as CI and the factory run it
-```
-
 ## Policy
 
-- Branch coverage of `src/llm_gateway_lite` must stay at or above 80 %; the gate fails below it.
-- Tests exercise the public API (`import llm_gateway_lite`) and assert every observable effect:
-  return values, raised exceptions and their messages.
-- Each bug fix starts with a failing test that reproduces it.
-- Tests are deterministic: no network, no wall clock, no dependence on test order.
+- Tests exercise the public API and assert observable effects (return values, exceptions).
+- Deterministic tests: no network, no actual wall clock dependencies.
 
-## Layout
+## Tests
 
-`tests/test_<module>.py` mirrors each public module. Shared fixtures go in `tests/conftest.py`.
+`tests/test_llm_gateway_lite.py` covers the full suite:
+
+- **Acceptance Tests**: POST requests to `/v1/chat/completions` with the `FakeProvider`.
+- **Auth Failures**: Missing `Authorization`, unknown keys, revoked keys.
+- **Routing & Models**: Model allowlist and prefix-based routing.
+- **Limits**: Sliding 60s rate limit (sliding window validation) and monthly quota reset.
+- **Body Size**: Handling of payloads exceeding `max_body_bytes`.
+- **Security**: Ensures plaintext keys or sensitive prompts are not in audit events or responses.

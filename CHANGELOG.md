@@ -9,4 +9,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Implement minimal WSGI LLM gateway with hashed virtual keys, rate limiting, and provider routing.
 - Initial project structure from the factory utility template.
