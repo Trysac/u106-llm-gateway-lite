@@ -10,8 +10,10 @@ Teams that share one provider account hand the real API key to every script and 
 
 ## Installation
 
+Not published to PyPI yet. Install it from GitHub:
+
 ```bash
-pip install llm-gateway-lite
+pip install "git+https://github.com/Trysac/u106-llm-gateway-lite"
 ```
 
 ## Usage Example
